@@ -1,0 +1,21 @@
+name: build
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get BakkesMod SDK
+        shell: pwsh
+        run: |
+          git clone --depth 1 https://github.com/bakkesmodorg/BakkesModSDK.git C:\bm\bakkesmodsdk
+          reg add "HKCU\Software\BakkesMod\AppPath" /v BakkesModPath /t REG_SZ /d "C:\bm" /f
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build
+        shell: pwsh
+        run: msbuild SpeedFlipTrainer.sln /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SpeedFlipTrainer
+          path: |
+            **/SpeedFlipTrainer.dll
