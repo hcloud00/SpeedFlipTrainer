@@ -286,6 +286,11 @@ void SpeedFlipTrainer::SetImGuiContext(uintptr_t ctx)
 // Should events such as mouse clicks/key inputs be blocked so they won't reach the game
 bool SpeedFlipTrainer::ShouldBlockInput()
 {
+	// BakkesMod may poll this for every input event, including while our window is closed
+	// or before SetImGuiContext has run. Only claim input when our window is actually open
+	// and a valid context exists; otherwise let the game (menus, Esc, controller) have it.
+	if (!isWindowOpen_ || ImGui::GetCurrentContext() == nullptr)
+		return false;
 	return ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard;
 }
 
